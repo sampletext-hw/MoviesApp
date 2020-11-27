@@ -11,5 +11,13 @@ namespace MoviesApp.Data
         }
 
         public DbSet<Movie> Movies { get; set; }
+        public DbSet<Actor> Actors { get; set; }
+        public DbSet<MovieActor> MovieActors { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<MovieActor>(e => e.HasKey(ma => new {ma.ActorId, ma.MovieId}));
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }
