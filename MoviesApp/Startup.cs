@@ -61,6 +61,9 @@ namespace MoviesApp
                 endpoints.MapControllerRoute(
                     "default",
                     "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute(
+                    "movies",
+                    "{controller=Movies}/{action=Index}/{id?}");
             });
         }
     }

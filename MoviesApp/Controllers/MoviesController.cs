@@ -9,7 +9,7 @@ using MoviesApp.ViewModels;
 
 namespace MoviesApp.Controllers
 {
-    public class MoviesController: Controller
+    public class MoviesController : Controller
     {
         private readonly MoviesContext _context;
         private readonly ILogger<HomeController> _logger;
@@ -25,7 +25,31 @@ namespace MoviesApp.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return View(_context.Movies.Select(m => new MovieViewModel
+            IQueryable<Movie> query = _context.Movies;
+
+            return View(query.Select(m => new MovieViewModel
+            {
+                Id = m.Id,
+                Genre = m.Genre,
+                Price = m.Price,
+                Title = m.Title,
+                ReleaseDate = m.ReleaseDate
+            }).ToList());
+        }
+
+        // GET: Movies
+        [HttpGet]
+        public IActionResult ByActor(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            IQueryable<Movie> query = _context.Movies.Include(m => m.Actors).Where(m => m.Actors.Any(a => a.ActorId == id));
+            
+
+            return View(nameof(Index), query.Select(m => new MovieViewModel
             {
                 Id = m.Id,
                 Genre = m.Genre,
@@ -53,7 +77,7 @@ namespace MoviesApp.Controllers
                 ReleaseDate = m.ReleaseDate
             }).FirstOrDefault();
 
-            
+
             if (viewModel == null)
             {
                 return NotFound();
@@ -61,7 +85,7 @@ namespace MoviesApp.Controllers
 
             return View(viewModel);
         }
-        
+
         // GET: Movies/Create
         [HttpGet]
         public IActionResult Create()
@@ -74,7 +98,8 @@ namespace MoviesApp.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("Title,ReleaseDate,Genre,Price")] InputMovieViewModel inputModel)
+        public IActionResult Create([Bind("Title,ReleaseDate,Genre,Price")]
+            InputMovieViewModel inputModel)
         {
             if (ModelState.IsValid)
             {
@@ -89,9 +114,10 @@ namespace MoviesApp.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
+
             return View(inputModel);
         }
-        
+
         [HttpGet]
         // GET: Movies/Edit/5
         public IActionResult Edit(int? id)
@@ -108,12 +134,12 @@ namespace MoviesApp.Controllers
                 Title = m.Title,
                 ReleaseDate = m.ReleaseDate
             }).FirstOrDefault();
-            
+
             if (editModel == null)
             {
                 return NotFound();
             }
-            
+
             return View(editModel);
         }
 
@@ -122,7 +148,8 @@ namespace MoviesApp.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, [Bind("Title,ReleaseDate,Genre,Price")] EditMovieViewModel editModel)
+        public IActionResult Edit(int id, [Bind("Title,ReleaseDate,Genre,Price")]
+            EditMovieViewModel editModel)
         {
             if (ModelState.IsValid)
             {
@@ -136,7 +163,7 @@ namespace MoviesApp.Controllers
                         Title = editModel.Title,
                         ReleaseDate = editModel.ReleaseDate
                     };
-                    
+
                     _context.Update(movie);
                     _context.SaveChanges();
                 }
@@ -151,11 +178,13 @@ namespace MoviesApp.Controllers
                         throw;
                     }
                 }
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(editModel);
         }
-        
+
         [HttpGet]
         // GET: Movies/Delete/5
         public IActionResult Delete(int? id)
@@ -172,7 +201,7 @@ namespace MoviesApp.Controllers
                 Title = m.Title,
                 ReleaseDate = m.ReleaseDate
             }).FirstOrDefault();
-            
+
             if (deleteModel == null)
             {
                 return NotFound();
@@ -180,7 +209,7 @@ namespace MoviesApp.Controllers
 
             return View(deleteModel);
         }
-        
+
         // POST: Movies/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
