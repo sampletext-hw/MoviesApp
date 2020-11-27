@@ -1,7 +1,6 @@
 namespace MoviesApp.ViewModels
 {
-    public class EditMovieViewModel:InputMovieViewModel
+    public class EditMovieViewModel : InputMovieViewModel
     {
-        
     }
 }

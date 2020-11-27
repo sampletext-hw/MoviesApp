@@ -15,11 +15,8 @@ namespace MoviesApp.Data
                     DbContextOptions<MoviesContext>>()))
             {
                 // Look for any movies.
-                if (context.Movies.Any())
-                {
-                    return;   // DB has been seeded
-                }
-                
+                if (context.Movies.Any()) return; // DB has been seeded
+
                 context.Movies.AddRange(
                     new Movie
                     {
@@ -28,8 +25,6 @@ namespace MoviesApp.Data
                         Genre = "Romantic Comedy",
                         Price = 7.99M
                     },
-                    
-
                     new Movie
                     {
                         Title = "Ghostbusters ",
@@ -37,7 +32,6 @@ namespace MoviesApp.Data
                         Genre = "Comedy",
                         Price = 8.99M
                     },
-
                     new Movie
                     {
                         Title = "Ghostbusters 2",
@@ -45,7 +39,6 @@ namespace MoviesApp.Data
                         Genre = "Comedy",
                         Price = 9.99M
                     },
-
                     new Movie
                     {
                         Title = "Rio Bravo",
@@ -54,7 +47,7 @@ namespace MoviesApp.Data
                         Price = 3.99M
                     }
                 );
-                
+
                 context.SaveChanges();
             }
         }
