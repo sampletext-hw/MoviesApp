@@ -125,6 +125,7 @@ namespace MoviesApp.Controllers
                 {
                     var actor = new Actor
                     {
+                        Id = id,
                         Name = editModel.Name,
                         Surname = editModel.Surname,
                         Birthdate = editModel.Birthdate
