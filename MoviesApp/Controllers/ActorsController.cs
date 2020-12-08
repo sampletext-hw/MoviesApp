@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MoviesApp.Data;
@@ -17,24 +15,20 @@ namespace MoviesApp.Controllers
     {
         private readonly MoviesContext _context;
         private readonly ILogger<ActorsController> _logger;
+        private readonly IMapper _mapper;
 
-        public ActorsController(MoviesContext context, ILogger<ActorsController> logger)
+        public ActorsController(MoviesContext context, ILogger<ActorsController> logger, IMapper mapper)
         {
             _context = context;
 
             _logger = logger;
+            _mapper = mapper;
         }
 
         // GET: Actors
         public IActionResult Index()
         {
-            return View(_context.Actors.Select(a => new ActorViewModel
-            {
-                Id = a.Id,
-                Name = a.Name,
-                Surname = a.Surname,
-                Birthdate = a.Birthdate
-            }).ToList());
+            return View(_mapper.Map<IEnumerable<Actor>, IEnumerable<ActorViewModel>>(_context.Actors.ToList()));
         }
 
         // GET: Actors/Details/5
@@ -45,14 +39,7 @@ namespace MoviesApp.Controllers
                 return NotFound();
             }
 
-            var viewModel = _context.Actors.Where(a => a.Id == id).Select(a => new ActorViewModel()
-            {
-                Id = a.Id,
-                Name = a.Name,
-                Surname = a.Surname,
-                Birthdate = a.Birthdate
-            }).FirstOrDefault();
-
+            var viewModel = _mapper.Map<Actor, ActorViewModel>(_context.Actors.FirstOrDefault(a => a.Id == id));
 
             if (viewModel == null)
             {
@@ -78,12 +65,8 @@ namespace MoviesApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(new Actor
-                {
-                    Name = inputModel.Name,
-                    Surname = inputModel.Surname,
-                    Birthdate = inputModel.Birthdate
-                });
+                var actor = _mapper.Map<InputActorViewModel, Actor>(inputModel);
+                _context.Add(actor);
                 _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
@@ -99,12 +82,7 @@ namespace MoviesApp.Controllers
                 return NotFound();
             }
 
-            var editModel = _context.Actors.Where(a => a.Id == id).Select(a => new EditActorViewModel()
-            {
-                Name = a.Name,
-                Surname = a.Surname,
-                Birthdate = a.Birthdate
-            }).FirstOrDefault();
+            var editModel = _mapper.Map<Actor, EditActorViewModel>(_context.Actors.FirstOrDefault(a => a.Id == id));
 
             if (editModel == null)
             {
@@ -126,13 +104,8 @@ namespace MoviesApp.Controllers
             {
                 try
                 {
-                    var actor = new Actor
-                    {
-                        Id = id,
-                        Name = editModel.Name,
-                        Surname = editModel.Surname,
-                        Birthdate = editModel.Birthdate
-                    };
+                    var actor = _mapper.Map<EditActorViewModel, Actor>(editModel);
+                    actor.Id = id;
 
                     _context.Update(actor);
                     _context.SaveChanges();
@@ -163,12 +136,7 @@ namespace MoviesApp.Controllers
                 return NotFound();
             }
 
-            var deleteModel = _context.Actors.Where(a => a.Id == id).Select(a => new DeleteActorViewModel
-            {
-                Name = a.Name,
-                Surname = a.Surname,
-                Birthdate = a.Birthdate
-            }).FirstOrDefault();
+            var deleteModel = _mapper.Map<Actor, DeleteActorViewModel>(_context.Actors.FirstOrDefault(a => a.Id == id));
 
             if (deleteModel == null)
             {
