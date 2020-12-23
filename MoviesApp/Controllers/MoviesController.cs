@@ -41,7 +41,8 @@ namespace MoviesApp.Controllers
                 return NotFound();
             }
 
-            IQueryable<Movie> query = _context.Movies.Include(m => m.Actors).Where(m => m.Actors.Any(a => a.ActorId == id));
+            IQueryable<Movie> query = _context.Movies.Include(m => m.Actors)
+                .Where(m => m.Actors.Any(a => a.ActorId == id));
 
             var movieViewModels = _mapper.Map<IEnumerable<Movie>, IEnumerable<MovieViewModel>>(query.ToList());
 
@@ -58,7 +59,7 @@ namespace MoviesApp.Controllers
             }
 
             var viewModel = _mapper.Map<Movie, MovieViewModel>(_context.Movies.FirstOrDefault(m => m.Id == id));
-            
+
             if (viewModel == null)
             {
                 return NotFound();
@@ -84,7 +85,7 @@ namespace MoviesApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                var movie = _mapper.Map<InputMovieViewModel,Movie>(inputModel);
+                var movie = _mapper.Map<InputMovieViewModel, Movie>(inputModel);
                 _context.Add(movie);
                 _context.SaveChanges();
 
@@ -103,8 +104,8 @@ namespace MoviesApp.Controllers
                 return NotFound();
             }
 
-            var editModel = _mapper.Map<Movie, EditMovieViewModel > (_context.Movies.FirstOrDefault(m => m.Id == id));
-            
+            var editModel = _mapper.Map<Movie, EditMovieViewModel>(_context.Movies.FirstOrDefault(m => m.Id == id));
+
             if (editModel == null)
             {
                 return NotFound();
@@ -159,7 +160,7 @@ namespace MoviesApp.Controllers
             }
 
             var deleteModel = _mapper.Map<Movie, DeleteMovieViewModel>(_context.Movies.FirstOrDefault(m => m.Id == id));
-            
+
             if (deleteModel == null)
             {
                 return NotFound();

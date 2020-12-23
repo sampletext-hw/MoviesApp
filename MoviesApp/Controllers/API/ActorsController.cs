@@ -7,7 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesApp.Data;
+using MoviesApp.DTOs;
 using MoviesApp.Models;
+using MoviesApp.Services;
 using MoviesApp.ViewModels;
 
 namespace MoviesApp.Controllers.API
@@ -16,28 +18,26 @@ namespace MoviesApp.Controllers.API
     [ApiController]
     public class ActorsController : ControllerBase
     {
-        private readonly MoviesContext _context;
-        private readonly IMapper _mapper;
+        private readonly IActorService _actorService;
 
-        public ActorsController(MoviesContext context, IMapper mapper)
+        public ActorsController(IActorService actorService)
         {
-            _context = context;
-            _mapper = mapper;
+            _actorService = actorService;
         }
 
         // GET: api/Actors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ActorViewModel>>> GetActors()
+        public ActionResult<IEnumerable<ActorDto>> GetActors()
         {
-            var actors = await _context.Actors.ToListAsync();
-            return Ok(_mapper.Map<IEnumerable<Actor>, IEnumerable<ActorViewModel>>(actors));
+            var actorDtos = _actorService.GetAll();
+            return Ok(actorDtos);
         }
 
         // GET: api/Actors/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ActorViewModel>> GetActor(int id)
+        public ActionResult<ActorDto> GetActor(int id)
         {
-            var actor = await _context.Actors.FindAsync(id);
+            var actor = _actorService.GetById(id);
 
 
             if (actor == null)
@@ -45,35 +45,17 @@ namespace MoviesApp.Controllers.API
                 return NotFound();
             }
 
-            return _mapper.Map<Actor, ActorViewModel>(actor);
+            return actor;
         }
 
         // PUT: api/Actors/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutActor(int id, EditActorViewModel viewModel)
+        public IActionResult PutActor(int id, ActorDto dto)
         {
-            var actor = _mapper.Map<EditActorViewModel, Actor>(viewModel);
-            actor.Id = id;
-
-            _context.Entry(actor).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ActorExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            dto.Id = id;
+            _actorService.Update(dto);
 
             return NoContent();
         }
@@ -82,37 +64,20 @@ namespace MoviesApp.Controllers.API
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<ActorViewModel>> PostActor(ActorViewModel viewModel)
+        public ActionResult<ActorDto> PostActor(ActorDto dto)
         {
-            var actor = _mapper.Map<ActorViewModel, Actor>(viewModel);
+            _actorService.Add(dto);
 
-            await _context.Actors.AddAsync(actor);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetActor", new { id = actor.Id }, actor);
+            return CreatedAtAction("GetActor", new { id = dto.Id }, dto);
         }
 
         // DELETE: api/Actors/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<ActorViewModel>> DeleteActor(int id)
+        public ActionResult DeleteActor(int id)
         {
-            var actor = await _context.Actors.FindAsync(id);
-            if (actor == null)
-            {
-                return NotFound();
-            }
+            _actorService.Delete(id);
 
-            var viewModel = _mapper.Map<Actor, ActorViewModel>(actor);
-
-            _context.Actors.Remove(actor);
-            await _context.SaveChangesAsync();
-
-            return viewModel;
-        }
-
-        private bool ActorExists(int id)
-        {
-            return _context.Actors.Any(e => e.Id == id);
+            return NoContent();
         }
     }
 }
