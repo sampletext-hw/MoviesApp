@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MoviesApp.Data;
 using MoviesApp.Extensions;
+using MoviesApp.Services;
 
 namespace MoviesApp
 {
@@ -30,6 +31,8 @@ namespace MoviesApp
 
             services.AddDbContext<MoviesContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("MoviesContext")));
+
+            services.AddScoped<IActorService, ActorService>();
             
             //Подключаем AutoMapper
             services.AddAutoMapper(typeof(Startup));
